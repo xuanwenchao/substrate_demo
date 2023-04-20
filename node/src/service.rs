@@ -134,6 +134,17 @@ pub fn new_partial(
 			telemetry: telemetry.as_ref().map(|x| x.handle()),
 		})?;
 
+
+	// let keystore = keystore_container.sync_keystore();
+	// if config.offchain_worker.enabled {
+	// 	sp_keystore::SyncCryptoStore::sr25519_generate_new(
+	// 		&*keystore,
+	// 		node_template_runtime::pallet_ocw_test::KEY_TYPE,
+	// 		Some("//Alice"),
+	// 	)
+	// 	.expect("### Create key with account Alice should succeed.");
+	// }
+
 	Ok(sc_service::PartialComponents {
 		client,
 		backend,

@@ -29,7 +29,7 @@ use sp_version::RuntimeVersion;
 pub use frame_support::{
 	construct_runtime, parameter_types,
 	traits::{
-		ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness, StorageInfo,
+		Nothing, ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness, StorageInfo,
 	},
 	weights::{
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
@@ -275,6 +275,149 @@ impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 }
 
+impl pallet_log_test::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+}
+
+impl pallet_storage_provider::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type Value = u32;
+}
+
+impl pallet_use_other_pallet::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type Value2 = u32;
+	type MyStorage = StorageProviderModule;
+}
+
+impl pallet_extend_pallet::Config for Runtime {}
+
+pub use pallet_ocw_test;
+
+impl pallet_ocw_test::Config for Runtime {
+	type AuthorityId = pallet_ocw_test::crypto::TestAuthId;
+	type RuntimeEvent = RuntimeEvent;
+}
+
+//Contracts pallet config in runtime
+// use pallet_contracts::weights::WeightInfo;
+const AVERAGE_ON_INITIALIZE_TATIO: Perbill = Perbill::from_percent(10);
+
+pub mod currency {
+	use node_primitives::Balance;
+	pub const MILLICENTS: Balance = 1_000_000_000;
+	pub const CENTS: Balance = 1_000 * MILLICENTS;
+	pub const DOLLARS: Balance = 100 * CENTS;
+	pub const fn deposit(items: u32, bytes: u32) -> Balance {
+		items as Balance * 15 * CENTS + (bytes as Balance) * 6 * CENTS
+	}
+}
+
+parameter_types! {
+	// pub const DepositPerItem: Balance = deposit(1, 0);
+	// pub const DepositPerByte: Balance = deposit(0, 1);
+	pub Schedule: pallet_contracts::Schedule<Runtime> = Default::default();
+	pub const DepositPerItem: Balance = currency::deposit(1, 0);
+	pub const DepositPerByte: Balance = currency::deposit(0, 1);
+	pub DeletionQueueDepth: u32 = 128;
+	// The lazy deletion runs inside on_initialize.
+	pub DeletionWeightLimit: Weight = AVERAGE_ON_INITIALIZE_TATIO * BlockWeights::get().max_block;
+	// RuntimeBlockWeights::get()
+	// 	.per_class
+	// 	.get(frame_support::dispatch::DispatchClass::Normal)
+	// 	.max_total
+	// 	.unwrap_or(RuntimeBlockWeights::get().max_block);
+}
+
+impl pallet_contracts::Config for Runtime {
+	type Time = Timestamp;
+	type Randomness = RandomnessCollectiveFlip;
+	type Currency = Balances;
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	/// The safest default is to allow no calls at all.
+	///
+	/// Runtimes should whitelist dispatchables that are allowed to be called from contracts
+	/// and make sure they are stable. Dispatchables exposed to contracts are not allowed to
+	/// change because that would break already deployed contracts. The `Call` structure itself
+	/// is not allowed to change the indices of existing pallets, too.
+	type CallFilter = Nothing;
+	type DeletionQueueDepth = DeletionQueueDepth;
+	type DeletionWeightLimit = DeletionWeightLimit;
+	type DepositPerItem = DepositPerItem;
+	type DepositPerByte = DepositPerByte;
+	type CallStack = [pallet_contracts::Frame<Self>; 5];
+	type WeightPrice = pallet_transaction_payment::Pallet<Self>;
+	type WeightInfo = pallet_contracts::weights::SubstrateWeight<Self>;
+	type ChainExtension = ();
+	type Schedule = Schedule;
+	type AddressGenerator = pallet_contracts::DefaultAddressGenerator;
+	type MaxCodeLen = ConstU32<{ 123 * 1024 }>;
+	type MaxStorageKeyLen = ConstU32<128>;
+	type ContractAccessWeight = frame_support::weights::constants::ExtrinsicBaseWeight;
+	// type UnsafeUnstableInterface = ConstBool<false>;
+	// type MaxDebugBufferLen = ConstU32<{ 2 * 1024 * 1024 }>;
+}
+
+
+use codec::Encode;
+use sp_runtime::{generic::Era, SaturatedConversion, traits};
+
+impl<LocalCall> frame_system::offchain::CreateSignedTransaction<LocalCall> for Runtime
+where
+    RuntimeCall: From<LocalCall>,
+{
+    fn create_transaction<C: frame_system::offchain::AppCrypto<Self::Public, Self::Signature>>(
+		   call: RuntimeCall,
+       public: <Signature as Verify>::Signer,
+	     account: AccountId,
+	     nonce: Index,
+     ) -> Option<(RuntimeCall, <UncheckedExtrinsic as traits::Extrinsic>::SignaturePayload)> {
+	     let tip = 0;
+	     // take the biggest period possible.
+	     let period =
+		      BlockHashCount::get().checked_next_power_of_two().map(|c| c / 2).unwrap_or(2) as u64;
+	     let current_block = System::block_number()
+		      .saturated_into::<u64>()
+		      // The `System::block_number` is initialized with `n+1`,
+		      // so the actual block number is `n`.
+		      .saturating_sub(1);
+	     let era = Era::mortal(period, current_block);
+	     let extra = (
+		      frame_system::CheckNonZeroSender::<Runtime>::new(),
+		      frame_system::CheckSpecVersion::<Runtime>::new(),
+		      frame_system::CheckTxVersion::<Runtime>::new(),
+		      frame_system::CheckGenesis::<Runtime>::new(),
+		      frame_system::CheckEra::<Runtime>::from(era),
+		      frame_system::CheckNonce::<Runtime>::from(nonce),
+		      frame_system::CheckWeight::<Runtime>::new(),
+		      pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
+	     );
+	     let raw_payload = SignedPayload::new(call, extra)
+		      .map_err(|e| {
+			       log::warn!("Unable to create signed payload: {:?}", e);
+		      })
+		      .ok()?;
+	     let signature = raw_payload.using_encoded(|payload| C::sign(payload, public))?;
+	     let address = account;
+	     let (call, extra, _) = raw_payload.deconstruct();
+	     Some((call, (sp_runtime::MultiAddress::Id(address), signature, extra)))
+   }
+}
+
+impl frame_system::offchain::SigningTypes for Runtime {
+	type Public = <Signature as traits::Verify>::Signer;
+	type Signature = Signature;
+}
+
+impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
+where
+	RuntimeCall: From<C>,
+{
+	type Extrinsic = UncheckedExtrinsic;
+	type OverarchingCall = RuntimeCall;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub struct Runtime
@@ -293,6 +436,12 @@ construct_runtime!(
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
+		StorageProviderModule: pallet_storage_provider,
+		UseOtherPalletModule: pallet_use_other_pallet,
+		ExtendPalletModule: pallet_extend_pallet,
+		LogTestModule: pallet_log_test,
+		Contracts: pallet_contracts::{Pallet,Storage,Event<T>},
+		OcwTestModule: pallet_ocw_test,
 	}
 );
 

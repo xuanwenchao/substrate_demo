@@ -1,8 +1,8 @@
 # this is a demo to learn base on substrate-node-template
 
-switch branch to learn_demo
+## Firstly, switch branch to learn_demo
 
-expanded pallet:
+expanded pallet includes:
 
 extend-pallet、
 log-test、

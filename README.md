@@ -4,11 +4,10 @@ switch branch to learn_demo
 
 expanded pallet:
 
-extend-pallet
-log-test
-ocw-test
-storage-provider
-template
-use-other-pallet
+extend-pallet、
+log-test、
+ocw-test、
+storage-provider、
+use-other-pallet、
 
 

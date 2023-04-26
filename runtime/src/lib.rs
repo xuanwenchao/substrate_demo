@@ -299,6 +299,19 @@ impl pallet_ocw_test::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 }
 
+
+pub use pallet_signed_payload_demo;
+
+impl pallet_signed_payload_demo::Config for Runtime {
+	type AuthorityId = pallet_signed_payload_demo::crypto::SignedPayloadAuthId;
+	type RuntimeEvent = RuntimeEvent;
+}
+
+impl frame_system::offchain::SigningTypes for Runtime {
+	type Public = <Signature as sp_runtime::traits::Verify>::Signer;
+	type Signature = Signature;
+}
+
 //Contracts pallet config in runtime
 // use pallet_contracts::weights::WeightInfo;
 const AVERAGE_ON_INITIALIZE_TATIO: Perbill = Perbill::from_percent(10);
@@ -405,10 +418,10 @@ where
    }
 }
 
-impl frame_system::offchain::SigningTypes for Runtime {
-	type Public = <Signature as traits::Verify>::Signer;
-	type Signature = Signature;
-}
+// impl frame_system::offchain::SigningTypes for Runtime {
+// 	type Public = <Signature as traits::Verify>::Signer;
+// 	type Signature = Signature;
+// }
 
 impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
 where
@@ -442,6 +455,7 @@ construct_runtime!(
 		LogTestModule: pallet_log_test,
 		Contracts: pallet_contracts::{Pallet,Storage,Event<T>},
 		OcwTestModule: pallet_ocw_test,
+		SignedPayloadDemoModule: pallet_signed_payload_demo,
 	}
 );
 

@@ -4022,6 +4022,7 @@ dependencies = [
  "pallet-log-test",
  "pallet-ocw-test",
  "pallet-randomness-collective-flip",
+ "pallet-signed-payload-demo",
  "pallet-storage-provider",
  "pallet-sudo",
  "pallet-template",
@@ -4411,6 +4412,21 @@ dependencies = [
  "sp-staking",
  "sp-std",
  "sp-trie",
+]
+
+[[package]]
+name = "pallet-signed-payload-demo"
+version = "4.0.0-dev"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
 ]
 
 [[package]]

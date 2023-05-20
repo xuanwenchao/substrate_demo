@@ -58,6 +58,8 @@ pallet-extend-pallet = { version = "4.0.0-dev", default-features = false, path =
 pallet-log-test = { version = "4.0.0-dev", default-features = false, path = "../pallets/log-test" }
 pallet-ocw-test = { version = "4.0.0-dev", default-features = false, path = "../pallets/ocw-test" }
 pallet-signed-payload-demo = { version = "4.0.0-dev", default-features = false, path = "../pallets/signed-payload-demo" }
+pallet-poe = { version = "4.0.0-dev", default-features = false, path = "../pallets/poe" }
+
 
 [build-dependencies]
 substrate-wasm-builder = { version = "5.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.30" }

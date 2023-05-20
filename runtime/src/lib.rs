@@ -294,11 +294,15 @@ impl pallet_extend_pallet::Config for Runtime {}
 
 pub use pallet_ocw_test;
 
+impl pallet_poe::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type MaxClaimLength = ConstU32<10>;
+}
+
 impl pallet_ocw_test::Config for Runtime {
 	type AuthorityId = pallet_ocw_test::crypto::TestAuthId;
 	type RuntimeEvent = RuntimeEvent;
 }
-
 
 pub use pallet_signed_payload_demo;
 
@@ -456,6 +460,7 @@ construct_runtime!(
 		Contracts: pallet_contracts::{Pallet,Storage,Event<T>},
 		OcwTestModule: pallet_ocw_test,
 		SignedPayloadDemoModule: pallet_signed_payload_demo,
+		PoeModule: pallet_poe,
 	}
 );
 

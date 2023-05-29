@@ -2,18 +2,19 @@
 
 pub use pallet::*;
 
-
 #[cfg(test)]
 mod mock;
 
 #[cfg(test)]
 mod tests;
 
-
 #[frame_support::pallet]
 pub mod pallet {
-	use frame_support::{pallet_prelude::{*, OptionQuery}, traits::Randomness};
-	use frame_system::{pallet_prelude::*, ensure_signed};
+	use frame_support::{
+		pallet_prelude::{OptionQuery, *},
+		traits::Randomness,
+	};
+	use frame_system::{ensure_signed, pallet_prelude::*};
 
 	use sp_io::hashing::blake2_128;
 
@@ -24,7 +25,6 @@ pub mod pallet {
 	pub struct Kitty(pub [u8; 16]);
 
 	#[pallet::pallet]
-	#[pallet::generate_store(pub(super) trait Store)]
 	pub struct Pallet<T>(_);
 
 	/// Configure the pallet by specifying the parameters and types on which it depends.
@@ -46,7 +46,8 @@ pub mod pallet {
 
 	#[pallet::storage]
 	#[pallet::getter(fn kitty_parents)]
-	pub type KittyParents<T> = StorageMap<_, Blake2_128Concat, KittyId, (KittyId,KittyId), OptionQuery>;
+	pub type KittyParents<T> =
+		StorageMap<_, Blake2_128Concat, KittyId, (KittyId, KittyId), OptionQuery>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn kitty_owner)]
@@ -56,9 +57,21 @@ pub mod pallet {
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
 		/// Event documentation should end with an array that provides descriptive names for event
-		KittyCreated { who: T::AccountId, kitty_id: KittyId, kitty: Kitty },
-		KittyBreeded { who: T::AccountId, kitty_id: KittyId, kitty: Kitty },
-		KittyTransfered { who: T::AccountId, recipient: T::AccountId, kitty: Kitty },
+		KittyCreated {
+			who: T::AccountId,
+			kitty_id: KittyId,
+			kitty: Kitty,
+		},
+		KittyBreeded {
+			who: T::AccountId,
+			kitty_id: KittyId,
+			kitty: Kitty,
+		},
+		KittyTransfered {
+			who: T::AccountId,
+			recipient: T::AccountId,
+			kitty: Kitty,
+		},
 	}
 
 	// Errors inform users that something went wrong.
@@ -95,15 +108,16 @@ pub mod pallet {
 			Ok(())
 		}
 
-
-
-
 		#[pallet::call_index(1)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn breed(origin: OriginFor<T>, kitty_id_1:KittyId, kitty_id_2:KittyId) -> DispatchResult {
+		pub fn breed(
+			origin: OriginFor<T>,
+			kitty_id_1: KittyId,
+			kitty_id_2: KittyId,
+		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
-			ensure!(kitty_id_1 != kitty_id_2, Error::<T>::SameKittyId );
+			ensure!(kitty_id_1 != kitty_id_2, Error::<T>::SameKittyId);
 			ensure!(Kitties::<T>::contains_key(kitty_id_1), Error::<T>::InvalidKittyID);
 			ensure!(Kitties::<T>::contains_key(kitty_id_2), Error::<T>::InvalidKittyID);
 			let kitty_id = Self::get_next_id()?;
@@ -120,16 +134,19 @@ pub mod pallet {
 
 			Kitties::<T>::insert(kitty_id, &kitty);
 			KittyOwner::<T>::insert(kitty_id, &who);
-			KittyParents::<T>::insert(kitty_id,(kitty_id_1,kitty_id_2));
+			KittyParents::<T>::insert(kitty_id, (kitty_id_1, kitty_id_2));
 
-			Self::deposit_event(Event::KittyBreeded{who,kitty_id, kitty});
+			Self::deposit_event(Event::KittyBreeded { who, kitty_id, kitty });
 			Ok(())
 		}
 
-
 		#[pallet::call_index(2)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn transfer(origin: OriginFor<T>, recipient: T::AccountId, kitty_id: KittyId) -> DispatchResult {
+		pub fn transfer(
+			origin: OriginFor<T>,
+			recipient: T::AccountId,
+			kitty_id: KittyId,
+		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			ensure!(KittyOwner::<T>::contains_key(kitty_id), Error::<T>::InvalidKittyID);
 
@@ -140,7 +157,7 @@ pub mod pallet {
 
 			let kitty = Self::kitties(kitty_id).ok_or(Error::<T>::InvalidKittyID)?;
 
-			Self::deposit_event(Event::KittyTransfered{who,recipient, kitty});
+			Self::deposit_event(Event::KittyTransfered { who, recipient, kitty });
 			Ok(())
 		}
 	}
@@ -157,7 +174,7 @@ pub mod pallet {
 			})
 		}
 
-        //generate unique data that length is 128 bitt
+		//generate unique data that length is 128 bitt
 		fn random_value(sender: &T::AccountId) -> [u8; 16] {
 			let payload = (
 				T::Randomness::random_seed(),

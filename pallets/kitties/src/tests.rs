@@ -35,10 +35,6 @@ fn it_works_for_create() {
             expected_event
         );
 
-        // assert_eq!(
-		// 	System::events()[0].event,
-        //     expected_event
-	    // );
     });
 }
 

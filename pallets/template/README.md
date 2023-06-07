@@ -1,1 +1,1 @@
-License: Unlicense
+./target/release/node-template --dev --base-path /tmp/kitties

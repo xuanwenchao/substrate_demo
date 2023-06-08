@@ -1,13 +1,16 @@
 use crate as pallet_kitties;
-use frame_support::traits::{ConstU16, ConstU64, ConstU32, ConstU128};
+use frame_support::{
+	parameter_types,
+	traits::{ConstU128, ConstU16, ConstU32, ConstU64},
+	PalletId,
+};
 use frame_system as system;
+use pallet_balances;
 use sp_core::H256;
 use sp_runtime::{
 	testing::Header,
 	traits::{BlakeTwo256, IdentityLookup},
 };
-use frame_support::{PalletId, parameter_types};
-use pallet_balances;
 
 // use pallet_randomness_collective_flip;
 
@@ -17,7 +20,6 @@ type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
 pub type Balance = u128;
 pub const EXISTENTIAL_DEPOSIT: u128 = 500;
-
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
@@ -32,8 +34,6 @@ frame_support::construct_runtime!(
 		Balances: pallet_balances,
 	}
 );
-
-
 
 impl system::Config for Test {
 	type BaseCallFilter = frame_support::traits::Everything;
@@ -62,8 +62,6 @@ impl system::Config for Test {
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
-
-
 impl pallet_balances::Config for Test {
 	type MaxLocks = ConstU32<50>;
 	type MaxReserves = ();
@@ -74,7 +72,7 @@ impl pallet_balances::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type DustRemoval = ();
 	type ExistentialDeposit = ConstU128<EXISTENTIAL_DEPOSIT>;
-    type AccountStore = System;
+	type AccountStore = System;
 	type WeightInfo = pallet_balances::weights::SubstrateWeight<Test>;
 }
 
@@ -97,14 +95,14 @@ use sp_core::offchain::{testing, OffchainWorkerExt};
 
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	
 	let (offchain, _state) = testing::TestOffchainExt::new();
 	let mut ext: sp_io::TestExternalities =
 		system::GenesisConfig::default().build_storage::<Test>().unwrap().into();
-		ext.register_extension(OffchainWorkerExt::new(offchain));
-	ext.execute_with(||{
+	ext.register_extension(OffchainWorkerExt::new(offchain));
+	ext.execute_with(|| {
 		let _ = Balances::set_balance(RuntimeOrigin::root(), 1, 999_999_999, 0);
-		 System::set_block_number(1);
-		});
+		let _ = Balances::set_balance(RuntimeOrigin::root(), 2, 999_999_999, 0);
+		System::set_block_number(1);
+	});
 	ext
 }

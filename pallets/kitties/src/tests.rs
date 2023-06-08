@@ -38,8 +38,6 @@ mod create_kitty_test {
 	fn failed_when_create() {
 		new_test_ext().execute_with(|| {
 			let account_id = 1;
-			System::set_block_number(1);
-
 			crate::NextKittyId::<Test>::set(crate::KittyId::max_value());
 
 			assert_noop!(
@@ -58,7 +56,6 @@ mod breed_kitty_test {
 		new_test_ext().execute_with(|| {
 			let kitty_id = 0;
 			let account_id = 1;
-			System::set_block_number(1);
 
 			assert_ok!(KittyModule::create(RuntimeOrigin::signed(account_id), *b"alex_123"));
 			assert_ok!(KittyModule::create(RuntimeOrigin::signed(account_id), *b"alex_123"));
@@ -87,16 +84,16 @@ mod breed_kitty_test {
 				kitty_id: (breed_kitty_id),
 				kitty: breed_kitty,
 			});
-            System::assert_last_event(expected_event.into());
+			System::assert_last_event(expected_event.into());
 		});
 	}
 
 	#[test]
-    fn failed_when_breed() {
+	fn failed_when_breed() {
 		new_test_ext().execute_with(|| {
-            let kitty_id = 0;
+			let kitty_id = 0;
 			let account_id = 1;
-            
+
 			assert_noop!(
 				KittyModule::breed(
 					RuntimeOrigin::signed(account_id),
@@ -107,7 +104,6 @@ mod breed_kitty_test {
 				Error::<Test>::SameKittyId
 			);
 
-
 			assert_noop!(
 				KittyModule::breed(
 					RuntimeOrigin::signed(account_id),
@@ -117,8 +113,8 @@ mod breed_kitty_test {
 				),
 				Error::<Test>::InvalidKittyID
 			);
-        });
-    }
+		});
+	}
 }
 
 mod transfer_kitty_test {
@@ -126,12 +122,10 @@ mod transfer_kitty_test {
 
 	#[test]
 	fn it_works_for_transfer() {
-        new_test_ext().execute_with(|| {
-
+		new_test_ext().execute_with(|| {
 			let kitty_id = 0;
 			let account_id = 1;
 			let recipient = 2;
-			System::set_block_number(1);
 
 			assert_ok!(KittyModule::create(RuntimeOrigin::signed(account_id), *b"alex_123"));
 			assert_eq!(KittyModule::kitty_owner(kitty_id), Some(account_id));
@@ -157,26 +151,126 @@ mod transfer_kitty_test {
 				recipient: account_id,
 				kitty_id,
 			});
-			let events = System::events();
-			let last_event = events.last().unwrap_or_else(|| unreachable!("Expected an event"));
-			assert_eq!(last_event.event, expected_event);
+			System::assert_last_event(expected_event.into());
 		});
 	}
 
-
-    #[test]
+	#[test]
 	fn failed_when_transfer() {
-        new_test_ext().execute_with(|| {
-
+		new_test_ext().execute_with(|| {
 			let kitty_id = 0;
 			let account_id = 1;
 			let recipient = 2;
 			assert_ok!(KittyModule::create(RuntimeOrigin::signed(account_id), *b"alex_123"));
 
-            assert_noop!(
+			assert_noop!(
 				KittyModule::transfer(RuntimeOrigin::signed(recipient), recipient, kitty_id),
 				Error::<Test>::NotKittyOwner
 			);
-        });
+		});
+	}
 }
+
+mod sale_kitty_test {
+	use super::*;
+
+	#[test]
+	fn it_works_for_sale() {
+		new_test_ext().execute_with(|| {
+			let kitty_id = 0;
+			let account_id = 1;
+			assert_ok!(KittyModule::create(RuntimeOrigin::signed(account_id), *b"alex_123"));
+			assert_eq!(KittyModule::kitty_owner(kitty_id), Some(account_id));
+
+			assert_ok!(KittyModule::sale(RuntimeOrigin::signed(account_id), kitty_id));
+
+			assert_eq!(KittyModule::kitty_on_sale(kitty_id).is_some(), true);
+
+			//To check if a custom event has been successfully sent,
+			//we can use the System::events() function to get the list of events that have been
+			// emitted.
+			let expected_event =
+				RuntimeEvent::KittyModule(crate::Event::KittyOnSale { who: account_id, kitty_id });
+			System::assert_last_event(expected_event.into());
+		});
+	}
+
+	#[test]
+	fn failed_when_sale() {
+		new_test_ext().execute_with(|| {
+			let kitty_id = 0;
+			let account_id = 1;
+			let recipient = 2;
+			assert_ok!(KittyModule::create(RuntimeOrigin::signed(account_id), *b"alex_123"));
+			assert_ok!(KittyModule::sale(RuntimeOrigin::signed(account_id), kitty_id));
+			assert_noop!(
+				KittyModule::sale(RuntimeOrigin::signed(recipient), kitty_id),
+				Error::<Test>::NotKittyOwner
+			);
+
+			assert_noop!(
+				KittyModule::sale(RuntimeOrigin::signed(account_id), kitty_id+1),
+				Error::<Test>::InvalidKittyID
+			);
+
+			assert_noop!(
+				KittyModule::sale(RuntimeOrigin::signed(account_id), kitty_id),
+				Error::<Test>::AlreadyOnSale
+			);
+		});
+	}
+}
+
+mod buy_kitty_test {
+	use super::*;
+
+	#[test]
+	fn it_works_for_buy() {
+		new_test_ext().execute_with(|| {
+			let kitty_id = 0;
+			let account_id = 1;
+			let buyer_id = 2;
+
+			assert_ok!(KittyModule::create(RuntimeOrigin::signed(account_id), *b"alex_123"));
+			assert_eq!(KittyModule::kitty_owner(kitty_id), Some(account_id));
+
+			assert_ok!(KittyModule::sale(RuntimeOrigin::signed(account_id), kitty_id));
+
+			assert_eq!(KittyModule::kitty_on_sale(kitty_id).is_some(), true);
+
+			assert_ok!(KittyModule::buy(RuntimeOrigin::signed(buyer_id), kitty_id));
+
+			assert_eq!(KittyModule::kitty_owner(kitty_id), Some(buyer_id));
+			assert_eq!(KittyModule::kitty_on_sale(kitty_id).is_none(), true);
+
+			//To check if a custom event has been successfully sent,
+			//we can use the System::events() function to get the list of events that have been
+			// emitted.
+			let expected_event =
+				RuntimeEvent::KittyModule(crate::Event::KittyBought { who: buyer_id, kitty_id });
+			System::assert_last_event(expected_event.into());
+		});
+	}
+
+	#[test]
+	fn failed_when_buy() {
+		new_test_ext().execute_with(|| {
+			let kitty_id = 0;
+			let account_id = 1;
+			let buyer_id = 2;
+			assert_ok!(KittyModule::create(RuntimeOrigin::signed(account_id), *b"alex_123"));
+			assert_noop!(
+				KittyModule::buy(RuntimeOrigin::signed(buyer_id), kitty_id+1),
+				Error::<Test>::InvalidKittyID
+			);
+			assert_noop!(
+				KittyModule::buy(RuntimeOrigin::signed(account_id), kitty_id),
+				Error::<Test>::AlreadyOwned
+			);
+            assert_noop!(
+				KittyModule::buy(RuntimeOrigin::signed(buyer_id), kitty_id),
+				Error::<Test>::NotOnSale
+			);
+		});
+	}
 }

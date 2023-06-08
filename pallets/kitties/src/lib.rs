@@ -219,7 +219,7 @@ pub mod pallet {
 
 			Self::kitties(kitty_id).ok_or(Error::<T>::InvalidKittyID)?;
 			ensure!(Self::kitty_owner(kitty_id) == Some(who.clone()), Error::<T>::NotKittyOwner);
-			ensure!(Self::kitty_on_sale(kitty_id).is_some(), Error::<T>::AlreadyOnSale);
+			ensure!(Self::kitty_on_sale(kitty_id).is_none(), Error::<T>::AlreadyOnSale);
 
 			<KittyOnSale<T>>::insert(kitty_id, ());
 			Self::deposit_event(Event::KittyOnSale { who, kitty_id });

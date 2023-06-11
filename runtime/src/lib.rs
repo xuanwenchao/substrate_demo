@@ -263,6 +263,10 @@ impl pallet_sudo::Config for Runtime {
 	type RuntimeCall = RuntimeCall;
 }
 
+impl pallet_oci::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+}
+
 /// Configure the pallet-template in pallets/template.
 impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
@@ -301,6 +305,7 @@ construct_runtime!(
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
+		OffchainIndexingModule: pallet_oci,
 		KittyModule: pallet_kitties,
 		RandomnessCollectiveFlip: pallet_insecure_randomness_collective_flip,
 

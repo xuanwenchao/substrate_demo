@@ -1,0 +1,1 @@
+./target/release/node-template --dev --base-path /tmp/kitties

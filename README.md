@@ -1,4 +1,4 @@
-### 1. 链上的随机数与链下的随机数的区别：
+## 1. 链上的随机数与链下的随机数的区别：
 
 1.1  链上的随机数：
 生成方式：链上的随机数是通过区块链网络的共识算法生成的，如基于区块哈希或区块头的哈希计算。
@@ -17,11 +17,25 @@
 
 
 
-### 2. 在Offchain Worker中，使用Offchain Indexing特性实现从链上向Offchain Storage中写入数据
-代码位置：pallets/oci
+## 2. 在Offchain Worker中，使用Offchain Indexing特性实现从链上向Offchain Storage中写入数据
+代码位置：https://github.com/xuanwenchao/substrate_demo/tree/OCW_Demo/pallets/oci
+### 2.1 Cargo test 测试用例执行结果:
+<img width="818" alt="截屏2023-06-11 11 49 08" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/390b55dd-2bb6-4f39-aa04-e8db9acc9160">
 
-运行如下命令：
-```j
-./target/release/node-template --enable-offchain-indexing true
+### 2.2 向Storage中读写数据测试结果
+
+首先运行如下命令启动节点：
+```js
+./target/release/node-template --dev --enable-offchain-indexing true
 ```
+
+选择offchainIndexingModule模块 先择setOnChainData,输入数据并提交交易
+
+![截屏2023-06-11 11 27 57](https://github.com/xuanwenchao/substrate_demo/assets/1876277/1f8114e2-ae1d-43ef-a707-8213842584ec)
+
+
+交易成功后，在命令行可以看到输出的LOG信息
+
+![1686455799910](https://github.com/xuanwenchao/substrate_demo/assets/1876277/b13caf55-d132-4fce-bafb-a6c2c6fe2ee8)
+
 

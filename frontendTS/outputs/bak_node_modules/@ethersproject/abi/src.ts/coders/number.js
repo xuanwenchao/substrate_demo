@@ -1,0 +1,45 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NumberCoder = void 0;
+const bignumber_1 = require("@ethersproject/bignumber");
+const constants_1 = require("@ethersproject/constants");
+const abstract_coder_1 = require("./abstract-coder");
+class NumberCoder extends abstract_coder_1.Coder {
+    constructor(size, signed, localName) {
+        const name = ((signed ? "int" : "uint") + (size * 8));
+        super(name, name, localName, false);
+        this.size = size;
+        this.signed = signed;
+    }
+    defaultValue() {
+        return 0;
+    }
+    encode(writer, value) {
+        let v = bignumber_1.BigNumber.from(value);
+        // Check bounds are safe for encoding
+        let maxUintValue = constants_1.MaxUint256.mask(writer.wordSize * 8);
+        if (this.signed) {
+            let bounds = maxUintValue.mask(this.size * 8 - 1);
+            if (v.gt(bounds) || v.lt(bounds.add(constants_1.One).mul(constants_1.NegativeOne))) {
+                this._throwError("value out-of-bounds", value);
+            }
+        }
+        else if (v.lt(constants_1.Zero) || v.gt(maxUintValue.mask(this.size * 8))) {
+            this._throwError("value out-of-bounds", value);
+        }
+        v = v.toTwos(this.size * 8).mask(this.size * 8);
+        if (this.signed) {
+            v = v.fromTwos(this.size * 8).toTwos(8 * writer.wordSize);
+        }
+        return writer.writeValue(v);
+    }
+    decode(reader) {
+        let value = reader.readValue().mask(this.size * 8);
+        if (this.signed) {
+            value = value.fromTwos(this.size * 8);
+        }
+        return reader.coerce(this.name, value);
+    }
+}
+exports.NumberCoder = NumberCoder;
+//# sourceMappingURL=number.js.map

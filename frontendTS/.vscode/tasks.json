@@ -1,0 +1,60 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "typescript",
+			"tsconfig": "tsconfig.json",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build",
+			"label": "tsc: 构建 - tsconfig.json",
+			"dependsOn": [
+				"clean outputs"
+			]
+		},
+		{
+			"type": "typescript",
+			"tsconfig": "tsconfig.json",
+			"option": "watch",
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"label": "tsc: 监视 - tsconfig.json",
+			"dependsOn": [
+				"clean outputs"
+			]
+		},
+		{
+			"label": "clean outputs",
+			"type": "shell",
+			"command": [
+				"cd ${workspaceFolder} &&",
+				"rm -rf outputs &&",
+				"mkdir -pv outputs"
+			]
+		},
+		{
+			"label": "automatically run script",
+			"type": "shell",
+			"command": "node ${workspaceFolder}/outputs/main.js",
+			"dependsOn": [
+				"tsc: build - tsconfig.json"
+			],
+			"group": "build"
+		},
+		{
+			"label": "manually run script",
+			"type": "shell",
+			"command": [
+				"node ${workspaceFolder}/outputs/main.js"
+			],
+			"group": "test"
+		}
+	]
+	
+}

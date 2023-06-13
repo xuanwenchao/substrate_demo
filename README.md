@@ -59,3 +59,18 @@
 提交成功后，查看TypeScript执行的输出
 
 <img width="1132" alt="截屏2023-06-13 09 08 59" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/4669db78-b08b-427c-b6f5-e13d72c58afb">
+
+## 4 设计一个场景实例 (比如获取一个外部的价格信息)，实现从OCW中向链上发起带签名负载的不签名交易，并在Runtime中正确处理
+代码位置：https://github.com/xuanwenchao/substrate_demo/tree/OCW_Demo/pallets/ocw-test
+
+首先在offchain_worker方法中请求接口获取价格
+接口地址：http://mock.apistub.cn/user/gh_1876277/SampleProject/getprice?who=xuan
+得到价格之后，调用send_unsigned_transaction并对内容进行签名，然后调用on-chain的pallet::call方法unsigned_extrinsic_with_signed_payload
+unsigned_extrinsic_with_signed_payload方法会将得到的价格写入pallet::storage变量Something
+<img width="1131" alt="截屏2023-06-13 21 02 01" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/13853350-c3bf-4573-9cf5-29781b50beb1">
+
+返回成功信息后，在https://polkadot.js.org/apps/#/chainstate可以验证结果
+![截屏2023-06-13 21 02 22](https://github.com/xuanwenchao/substrate_demo/assets/1876277/73acc68d-45fd-4181-b93a-a614d727448e)
+
+
+

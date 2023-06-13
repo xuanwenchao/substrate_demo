@@ -40,7 +40,11 @@
 
 
 ## 3. 使用 js sdk 从浏览器frontend获取到前面写入Offchain Storage的数据
+
 本地没有HttpServer代理服务器，我用TypeScript实现后，在控制台输出的方式来展示
+
+代码位置：https://github.com/xuanwenchao/substrate_demo/blob/OCW_Demo/frontendTS/main.ts
+
 首先启动节点
 
 <img width="1347" alt="截屏2023-06-13 09 09 58" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/bfa03663-5a3f-447e-9ecf-b27008e4ea65">

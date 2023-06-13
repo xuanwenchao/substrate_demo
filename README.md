@@ -39,3 +39,19 @@
 ![1686455799910](https://github.com/xuanwenchao/substrate_demo/assets/1876277/b13caf55-d132-4fce-bafb-a6c2c6fe2ee8)
 
 
+## 3. 使用 js sdk 从浏览器frontend获取到前面写入Offchain Storage的数据
+本地没有HttpServer代理服务器，我用TypeScript实现后，在控制台输出的方式来展示
+首先启动节点
+
+<img width="1347" alt="截屏2023-06-13 09 09 58" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/bfa03663-5a3f-447e-9ecf-b27008e4ea65">
+
+然后执行 ts-node main.ts 执行TypeScript代码，反复检查LocalStorage是否为空，如果不为空则读取内容后终止
+<img width="1123" alt="截屏2023-06-13 09 11 57" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/e99ad240-6d0d-4bf6-985f-78c9bb252229">
+
+打开https://polkadot.js.org/apps/#/extrinsics 使用Offchain Indexing特性实现从链上向Offchain Storage中写入数据
+
+![截屏2023-06-13 09 08 48](https://github.com/xuanwenchao/substrate_demo/assets/1876277/5705e96c-f706-401d-83e5-1898beafef88)
+
+提交成功后，查看TypeScript执行的输出
+
+<img width="1132" alt="截屏2023-06-13 09 08 59" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/4669db78-b08b-427c-b6f5-e13d72c58afb">

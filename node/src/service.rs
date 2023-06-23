@@ -89,14 +89,14 @@ pub fn new_partial(
 	let client = Arc::new(client);
 
 //模拟当前用户
-if config.offchain_worker.enabled {
-	let keystore = keystore_container.sync_keystore();
-	sp_keystore::SyncCryptoStore::sr25519_generate_new(
-		&*keystore,
-		node_template_runtime::pallet_ocw_test::KEY_TYPE,
-		Some("//Alice"),
-		).expect("Creating key with account Alice should succeed.");
-}
+// if config.offchain_worker.enabled {
+// 	let keystore = keystore_container.sync_keystore();
+// 	sp_keystore::SyncCryptoStore::sr25519_generate_new(
+// 		&*keystore,
+// 		node_template_runtime::pallet_ocw_test::KEY_TYPE,
+// 		Some("//Alice"),
+// 		).expect("Creating key with account Alice should succeed.");
+// }
 
 
 	let telemetry = telemetry.map(|(worker, telemetry)| {

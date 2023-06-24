@@ -24,3 +24,5 @@ cargo build --release --features runtime-benchmarks
 
 # 2. 选择 node-template 或者其它节点程序，生成 Chain Spec 文件（两种格式都需要）
 
+consensus_aura和consensus_babe转换代码修改：https://github.com/kaichaosun/substrate-stencil/commit/e0a7aaf17e2e003ce80cf8062005be202c6cb017
+

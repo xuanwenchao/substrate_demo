@@ -1,8 +1,8 @@
 use hex_literal::hex;
 
 use node_template_runtime::{
-	AccountId, /*BabeConfig,*/ BalancesConfig, GenesisConfig, GrandpaConfig, Signature, SudoConfig,
-	SystemConfig, WASM_BINARY, /*BABE_GENESIS_EPOCH_CONFIG,*/ SessionConfig, StakingConfig, SessionKeys,
+	AccountId, AuraConfig, BabeConfig, BalancesConfig, GenesisConfig, GrandpaConfig, Signature, SudoConfig,
+	SystemConfig, WASM_BINARY, BABE_GENESIS_EPOCH_CONFIG, SessionConfig, StakingConfig, opaque::SessionKeys,
 	constants::currency::*, StakerStatus, MaxNominations, ImOnlineConfig,
 };
 use sc_service::ChainType;
@@ -41,6 +41,14 @@ where
 	AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
 }
 
+fn session_keys(
+	aura: AuraId,
+	grandpa: GrandpaId,
+	im_online: ImOnlineId,
+) -> SessionKeys {
+	SessionKeys { aura, grandpa, im_online }
+}
+
 // fn session_keys(
 // 	babe: BabeId,
 // 	grandpa: GrandpaId,
@@ -51,8 +59,18 @@ where
 
 
 /// Generate an Aura authority key.
-pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
-	(get_from_seed::<AuraId>(s), get_from_seed::<GrandpaId>(s))
+// pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
+// 	(get_from_seed::<AuraId>(s), get_from_seed::<GrandpaId>(s))
+// }
+/// Generate an Babe authority key.
+pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, AuraId, GrandpaId, ImOnlineId) {
+	(
+		get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", s)),
+		get_account_id_from_seed::<sr25519::Public>(s),
+		get_from_seed::<AuraId>(s),
+		get_from_seed::<GrandpaId>(s),
+		get_from_seed::<ImOnlineId>(s),
+	)
 }
 
 pub fn development_config() -> Result<ChainSpec, String> {
@@ -69,6 +87,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 				wasm_binary,
 				// Initial PoA authorities
 				vec![authority_keys_from_seed("Alice")],
+				vec![],
 				// Sudo account
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts
@@ -103,8 +122,8 @@ pub fn staging_network_config() -> ChainSpec {
 	let boot_nodes = vec![];
 
 	ChainSpec::from_genesis(
-		"Substrate Stencil",
-		"stencil_network",
+		"Substrate Aura",
+		"aura_network",
 		ChainType::Live,
 		staging_network_config_genesis,
 		boot_nodes,
@@ -229,6 +248,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 				wasm_binary,
 				// Initial PoA authorities
 				vec![authority_keys_from_seed("Alice"), authority_keys_from_seed("Bob")],
+				vec![],
 				// Sudo account
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts
@@ -267,8 +287,9 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 fn testnet_genesis(
 	wasm_binary: &[u8],
 	initial_authorities: Vec<(AccountId, AccountId, AuraId, GrandpaId, ImOnlineId)>,
+	initial_nominators: Vec<AccountId>,
 	root_key: AccountId,
-	endowed_accounts: Vec<AccountId>,
+	mut endowed_accounts: Vec<AccountId>,
 	_enable_println: bool,
 ) -> GenesisConfig {
 
@@ -317,14 +338,18 @@ fn testnet_genesis(
 			balances: endowed_accounts.iter().cloned().map(|k| (k, 1 << 60)).collect(),
 		},
 		aura: AuraConfig {
-			authorities: initial_authorities.iter().map(|x| (x.0.clone())).collect(),
+			//使用session来设置 aura 的authorities
+			authorities:vec![],
+			//authorities: initial_authorities.iter().map(|x| (x.0.clone())).collect(),
 		},
-		// babe: BabeConfig {
-		// 	authorities: vec![],
-		// 	epoch_config: Some(BABE_GENESIS_EPOCH_CONFIG),
-		// },
+		babe: BabeConfig {
+			authorities: vec![],
+			epoch_config: Some(BABE_GENESIS_EPOCH_CONFIG),
+		},
 		grandpa: GrandpaConfig {
-			authorities: initial_authorities.iter().map(|x| (x.1.clone(), 1)).collect(),
+			//使用session来设置 grandpa 的authorities
+			authorities:vec![],
+			//authorities: initial_authorities.iter().map(|x| (x.1.clone(), 1)).collect(),
 		},
 		session: SessionConfig {
 			keys: initial_authorities

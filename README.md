@@ -42,7 +42,7 @@ cargo build --release --features runtime-benchmarks
 <img width="991" alt="截屏2023-06-25 15 16 40" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/a701420e-ab06-4d77-bf74-1c5c94ca5b0a">
 生成aura-raw.json文件位置：https://github.com/xuanwenchao/substrate_demo/blob/benchmarking/aura-raw.json
 
-# 2.1 生成babe-chain-spec文件
+# 2.2 生成babe-chain-spec文件
 代码地址：https://github.com/xuanwenchao/substrate_demo/tree/consensus_babe
 
 ```j

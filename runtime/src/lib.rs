@@ -107,8 +107,8 @@ pub mod opaque {
 
 	impl_opaque_keys! {
 		pub struct SessionKeys {
-		// pub babe: Babe,
-			pub aura: Aura,
+		    pub babe: Babe,
+			// pub aura: Aura,
 			pub grandpa: Grandpa,
 			pub im_online: ImOnline,
 		}

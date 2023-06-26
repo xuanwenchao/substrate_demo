@@ -6,8 +6,8 @@ use node_template_runtime::{
 	constants::currency::*, StakerStatus, MaxNominations, ImOnlineConfig,
 };
 use sc_service::ChainType;
-use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-//use sp_consensus_babe::AuthorityId as BabeId;
+// use sp_consensus_aura::sr25519::AuthorityId as AuraId;
+use sp_consensus_babe::AuthorityId as BabeId;
 use sp_consensus_grandpa::AuthorityId as GrandpaId;
 use sp_core::{crypto::UncheckedInto, sr25519, Pair, Public};
 use sp_runtime::{
@@ -42,11 +42,11 @@ where
 }
 
 fn session_keys(
-	aura: AuraId,
+	babe: BabeId,
 	grandpa: GrandpaId,
 	im_online: ImOnlineId,
 ) -> SessionKeys {
-	SessionKeys { aura, grandpa, im_online }
+	SessionKeys { babe, grandpa, im_online }
 }
 
 // fn session_keys(
@@ -63,11 +63,11 @@ fn session_keys(
 // 	(get_from_seed::<AuraId>(s), get_from_seed::<GrandpaId>(s))
 // }
 /// Generate an Babe authority key.
-pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, AuraId, GrandpaId, ImOnlineId) {
+pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, BabeId, GrandpaId, ImOnlineId) {
 	(
 		get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", s)),
 		get_account_id_from_seed::<sr25519::Public>(s),
-		get_from_seed::<AuraId>(s),
+		get_from_seed::<BabeId>(s),
 		get_from_seed::<GrandpaId>(s),
 		get_from_seed::<ImOnlineId>(s),
 	)
@@ -122,8 +122,8 @@ pub fn staging_network_config() -> ChainSpec {
 	let boot_nodes = vec![];
 
 	ChainSpec::from_genesis(
-		"Substrate Aura",
-		"aura_network",
+		"Substrate Babe",
+		"babe_network",
 		ChainType::Live,
 		staging_network_config_genesis,
 		boot_nodes,
@@ -149,7 +149,7 @@ fn staging_network_config_genesis() -> GenesisConfig {
 	// for i in 1 2 3 4; do for j in babe; do subkey --sr25519 inspect "$SECRET//$i//$j"; done; done
 	// for i in 1 2 3 4; do for j in grandpa; do subkey --ed25519 inspect "$SECRET//$i//$j"; done; done
 	// for i in 1 2 3 4; do for j in im_online; do subkey --sr25519 inspect "$SECRET//$i//$j"; done; done
-	let initial_authorities: Vec<(AccountId, AccountId, AuraId, GrandpaId, ImOnlineId)> = vec![
+	let initial_authorities: Vec<(AccountId, AccountId, BabeId, GrandpaId, ImOnlineId)> = vec![
 		(
 			// 5Grpw9i5vNyF6pbbvw7vA8pC5Vo8GMUbG8zraLMmAn32kTNH
 			hex!["d41e0bf1d76de368bdb91896b0d02d758950969ea795b1e7154343ee210de649"].into(),
@@ -286,7 +286,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 /// Configure initial storage state for FRAME modules.
 fn testnet_genesis(
 	wasm_binary: &[u8],
-	initial_authorities: Vec<(AccountId, AccountId, AuraId, GrandpaId, ImOnlineId)>,
+	initial_authorities: Vec<(AccountId, AccountId, BabeId, GrandpaId, ImOnlineId)>,
 	initial_nominators: Vec<AccountId>,
 	root_key: AccountId,
 	mut endowed_accounts: Vec<AccountId>,

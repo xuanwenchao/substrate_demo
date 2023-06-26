@@ -42,5 +42,16 @@ cargo build --release --features runtime-benchmarks
 <img width="991" alt="截屏2023-06-25 15 16 40" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/a701420e-ab06-4d77-bf74-1c5c94ca5b0a">
 生成aura-raw.json文件位置：https://github.com/xuanwenchao/substrate_demo/blob/benchmarking/aura-raw.json
 
+# 2.2 生成babe-chain-spec文件
+代码地址：https://github.com/xuanwenchao/substrate_demo/tree/consensus_babe
+
+```j
+
+./target/release/node-template build-spec --chain staging > babe.json
+./target/release/node-template build-spec --chain=babe.json --raw > babe-raw.json
+```
+<img width="1017" alt="截屏2023-06-26 17 34 55" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/aff712af-7ce1-43fb-a4b6-fce5c214c667">
+
+
 consensus_aura和consensus_babe转换代码修改参考：https://github.com/kaichaosun/substrate-stencil/commit/e0a7aaf17e2e003ce80cf8062005be202c6cb017
 

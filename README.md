@@ -29,7 +29,7 @@ cargo build --release --features runtime-benchmarks
 
 ```j
 
-./target/release/node-template build-spec --chain staging > aura.json
+./target/release/node-template build-spec --chain Substrate_Aura > aura.json
 ```
 生成aura.json文件位置：https://github.com/xuanwenchao/substrate_demo/blob/benchmarking/aura.json
 

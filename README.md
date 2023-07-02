@@ -55,3 +55,5 @@ cargo build --release --features runtime-benchmarks
 
 consensus_aura和consensus_babe转换代码修改参考：https://github.com/kaichaosun/substrate-stencil/commit/e0a7aaf17e2e003ce80cf8062005be202c6cb017
 
+babe修改后源码参考：https://github.com/kaichaosun/substrate-stencil/blob/840a9fcf7b2e23b417205b4c957297217c1dc43e/node/src/command.rs
+

@@ -47,10 +47,10 @@ cargo build --release --features runtime-benchmarks
 
 ```j
 
-./target/release/node-template build-spec --chain staging > babe.json
+./target/release/node-template build-spec --chain substrate_babe > babe.json
 ./target/release/node-template build-spec --chain=babe.json --raw > babe-raw.json
 ```
-<img width="1017" alt="截屏2023-06-26 17 34 55" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/aff712af-7ce1-43fb-a4b6-fce5c214c667">
+<img width="1002" alt="截屏2023-07-02 13 57 31" src="https://github.com/xuanwenchao/substrate_demo/assets/1876277/4c925253-78fa-4e2d-9e20-b69dca4315c8">
 
 
 consensus_aura和consensus_babe转换代码修改参考：https://github.com/kaichaosun/substrate-stencil/commit/e0a7aaf17e2e003ce80cf8062005be202c6cb017

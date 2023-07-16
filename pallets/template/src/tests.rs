@@ -16,6 +16,15 @@ fn it_works_for_default_value() {
 }
 
 #[test]
+fn it_works_for_init_value(){
+	new_test_ext().execute_with(||{
+	  assert_eq!(TemplateModule::something(), Some(123));
+      assert_eq!(TemplateModule::accounts(1),Some(1111));
+	  assert_eq!(TemplateModule::accounts(2),Some(2222));
+	});
+}
+
+#[test]
 fn correct_error_for_none_value() {
 	new_test_ext().execute_with(|| {
 		// Ensure the expected error is thrown when no value is present.

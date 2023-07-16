@@ -1,5 +1,5 @@
 use crate as pallet_template;
-use frame_support::traits::{ConstU16, ConstU64};
+use frame_support::traits::{ConstU16, ConstU64, GenesisBuild};
 use sp_core::H256;
 use sp_runtime::{
 	testing::Header,
@@ -50,9 +50,16 @@ impl frame_system::Config for Test {
 
 impl pallet_template::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
+	type Balance = u32;
 }
 
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
+	let genesis = pallet_template::GenesisConfig::<Test> {
+		something: 123,
+		accounts: vec![(1, 1111), (2, 2222)],
+	};
+	
+	genesis.build_storage().unwrap().into()
+	// frame_system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
 }

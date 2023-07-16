@@ -266,6 +266,8 @@ impl pallet_sudo::Config for Runtime {
 /// Configure the pallet-template in pallets/template.
 impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	type Balance = u32;
+
 }
 
 impl pallet_insecure_randomness_collective_flip::Config for Runtime {}

@@ -6,7 +6,8 @@ use sc_service::ChainType;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_consensus_grandpa::AuthorityId as GrandpaId;
 use sp_core::{sr25519, Pair, Public};
-use sp_runtime::traits::{IdentifyAccount, Verify};
+use sp_runtime::{traits::{IdentifyAccount, Verify}, AccountId32};
+// use pallet_template::GenesisConfig as PalletTemplateConfig;
 
 // The URL for the telemetry server.
 // const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
@@ -151,6 +152,12 @@ fn testnet_genesis(
 			// Assign network admin rights.
 			key: Some(root_key),
 		},
+
+		template_module: PalletTemplateConfig {
+			something: 0,
+			accounts: vec![(AccountId32::from([1u8; 32]), 11111), (AccountId32::from([2u8; 32]), 22222)],
+		},
+
 		transaction_payment: Default::default(),
 	}
 }

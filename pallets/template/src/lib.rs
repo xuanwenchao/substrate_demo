@@ -16,7 +16,10 @@ mod benchmarking;
 
 #[frame_support::pallet]
 pub mod pallet {
-	use frame_support::pallet_prelude::*;
+	use codec::Codec;
+	use frame_support::{
+		pallet_prelude::*, sp_runtime::traits::AtLeast32BitUnsigned, sp_std::fmt::Debug,
+	};
 	use frame_system::pallet_prelude::*;
 
 	#[pallet::pallet]
@@ -27,6 +30,17 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
+		type Balance: Member
+			+ Parameter
+			+ AtLeast32BitUnsigned
+			+ Codec
+			+ From<u32>
+			+ Into<u32>
+			+ Copy
+			+ Debug
+			+ Default
+			+ MaxEncodedLen
+			+ MaybeSerializeDeserialize;
 	}
 
 	// The pallet's runtime storage items.
@@ -36,6 +50,10 @@ pub mod pallet {
 	// Learn more about declaring storage items:
 	// https://docs.substrate.io/main-docs/build/runtime-storage/#declaring-storage-items
 	pub type Something<T> = StorageValue<_, u32>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn accounts)]
+	pub type AccountMap<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, T::Balance>;
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
@@ -55,6 +73,33 @@ pub mod pallet {
 		/// Errors should have helpful documentation associated with them.
 		StorageOverflow,
 	}
+
+	#[pallet::genesis_config]
+	pub struct GenesisConfig<T: Config> {
+		pub something: u32,
+		pub accounts: Vec<(T::AccountId, T::Balance)>,
+	}
+
+	#[cfg(feature = "std")]
+	impl<T: Config> Default for GenesisConfig<T> {
+		fn default() -> Self {
+			Self {
+				something: Default::default(),
+				accounts: Default::default(),
+			}
+		}
+	}
+
+	#[pallet::genesis_build]
+	impl<T: Config> GenesisBuild<T> for GenesisConfig<T> {
+		fn build(&self) {
+			Something::<T>::put(self.something);
+			for (account, balance) in &self.accounts {
+				AccountMap::<T>::insert(account, balance);
+			}
+		}
+	}
+
 
 	// Dispatchable functions allows users to interact with the pallet and invoke state changes.
 	// These functions materialize as "extrinsics", which are often compared to transactions.
